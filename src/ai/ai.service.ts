@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
 @Injectable()
 export class AiService {
-  private genAI: GoogleGenerativeAI;
-  private model: any;
+  private ai: GoogleGenAI;
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
@@ -15,12 +14,13 @@ export class AiService {
       throw new Error('GEMINI_API_KEY is not defined in environment variables');
     }
     
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    this.ai = new GoogleGenAI({ apiKey });
   }
 
   async analyzeUX(filePath: string, userIntent: string): Promise<string> {
     try {
+      console.log('🔍 AI 분석 시작:', { filePath, userIntent });
+      
       // 프롬프트 템플릿 로드
       const promptTemplate = await this.loadPromptTemplate();
       
@@ -29,27 +29,48 @@ export class AiService {
       const base64Image = imageBuffer.toString('base64');
       const mimeType = this.getMimeType(filePath);
 
-      // 변수 치환
+      console.log('📷 이미지 정보:', { mimeType, size: imageBuffer.length });
+
+      // 프롬프트 생성
       const prompt = promptTemplate.replace('{USER_INTENT}', userIntent);
 
-      // Gemini API 호출 (이미지 포함)
-      const result = await this.model.generateContent([
-        {
-          inlineData: {
-            data: base64Image,
-            mimeType: mimeType,
+      // Gemini 2.5 API 호출 (이미지 포함)
+      const response = await this.ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                text: prompt,
+              },
+              {
+                inlineData: {
+                  mimeType: mimeType,
+                  data: base64Image,
+                },
+              },
+            ],
           },
-        },
-        prompt,
-      ]);
+        ],
+      });
 
-      const response = await result.response;
-      const text = response.text();
+      const text = response.text;
+
+      if (!text) {
+        throw new Error('AI로부터 응답을 받지 못했습니다');
+      }
+
+      console.log('✅ AI 분석 완료, 결과 길이:', text.length);
 
       return text;
     } catch (error) {
-      console.error('AI 분석 오류:', error);
-      throw new Error('AI 분석 중 오류가 발생했습니다');
+      console.error('❌ AI 분석 오류:', error);
+      console.error('오류 상세:', error.message);
+      if (error.response) {
+        console.error('API 응답 오류:', JSON.stringify(error.response, null, 2));
+      }
+      throw new Error(`AI 분석 중 오류가 발생했습니다: ${error.message}`);
     }
   }
 
