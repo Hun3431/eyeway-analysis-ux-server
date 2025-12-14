@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // CORS 설정 (환경 변수 기반)
-  const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'];
+  const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:8080'];
   app.enableCors({
     origin: allowedOrigins,
     credentials: true,
@@ -41,8 +41,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   
-  await app.listen(process.env.PORT ?? 3000);
-  console.log(`🚀 서버가 http://localhost:${process.env.PORT ?? 3000} 에서 실행 중입니다`);
-  console.log(`📚 Swagger 문서: http://localhost:${process.env.PORT ?? 3000}/api`);
+  await app.listen(process.env.PORT ?? 8080);
+  console.log(`🚀 서버가 http://localhost:${process.env.PORT ?? 8080} 에서 실행 중입니다`);
+  console.log(`📚 Swagger 문서: http://localhost:${process.env.PORT ?? 8080}/api`);
 }
 bootstrap();
