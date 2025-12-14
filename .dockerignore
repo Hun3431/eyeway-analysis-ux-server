@@ -1,0 +1,53 @@
+# 의존성
+node_modules
+npm-debug.log
+pnpm-debug.log
+
+# 빌드 결과물
+dist
+build
+
+# 환경 변수
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 테스트
+coverage
+.nyc_output
+
+# 로그
+logs
+*.log
+
+# 임시 파일
+tmp
+temp
+*.tmp
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 문서
+README.md
+API_SPECIFICATION.md
+
+# 설정 파일
+.prettierrc
+eslint.config.mjs

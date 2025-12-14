@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: eyeway-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: eyeway_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - eyeway-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eyeway-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # 데이터베이스 설정
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: eyeway_db
+      
+      # 애플리케이션 설정
+      PORT: 8080
+      NODE_ENV: production
+      
+      # JWT 설정 (프로덕션에서는 반드시 변경하세요!)
+      JWT_SECRET: your-secret-key-change-this-in-production
+      JWT_EXPIRATION: 1d
+      
+      # CORS 설정
+      CORS_ORIGINS: http://localhost:8080,http://localhost:3000
+      
+      # Gemini API 키
+      GEMINI_API_KEY: AIzaSyBBMw2cnC2X_G3I_-cKkRssemoGKBTlyh0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - eyeway-network
+    volumes:
+      - ./uploads:/app/uploads
+
+volumes:
+  postgres_data:
+
+networks:
+  eyeway-network:
+    driver: bridge
