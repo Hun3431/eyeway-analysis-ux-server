@@ -48,8 +48,8 @@ services:
       # CORS 설정
       CORS_ORIGINS: http://localhost:8080,http://localhost:3000
       
-      # Gemini API 키
-      GEMINI_API_KEY: AIzaSyBBMw2cnC2X_G3I_-cKkRssemoGKBTlyh0
+      # Gemini API 키 (.env 파일에서 로드)
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
     depends_on:
       postgres:
         condition: service_healthy
