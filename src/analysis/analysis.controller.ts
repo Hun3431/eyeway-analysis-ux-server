@@ -19,7 +19,7 @@ import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('UX 분석 (Analysis)')
-@Controller('analyses')
+@Controller('analysis')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('access-token')
 export class AnalysisController {
