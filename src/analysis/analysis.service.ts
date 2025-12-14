@@ -80,9 +80,13 @@ export class AnalysisService {
       // AI 분석 수행 (이미지 파일 경로 전달)
       const aiResult = await this.aiService.analyzeUX(filePath, userIntent);
 
+      // JSON 하이라이트 정보 추출
+      const highlights = this.extractHighlights(aiResult);
+
       // 결과 저장
       await this.analysisRepository.update(analysisId, {
         aiAnalysisResult: aiResult,
+        highlights: highlights,
         status: 'completed',
       });
     } catch (error) {
@@ -90,6 +94,21 @@ export class AnalysisService {
       await this.analysisRepository.update(analysisId, {
         status: 'failed',
       });
+    }
+  }
+
+  private extractHighlights(aiResult: string): any[] {
+    try {
+      // AI 결과에서 JSON 블록 찾기
+      const jsonMatch = aiResult.match(/```json\s*([\s\S]*?)\s*```/);
+      if (jsonMatch && jsonMatch[1]) {
+        const parsed = JSON.parse(jsonMatch[1]);
+        return parsed.highlights || [];
+      }
+      return [];
+    } catch (error) {
+      console.error('하이라이트 추출 오류:', error);
+      return [];
     }
   }
 }

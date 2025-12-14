@@ -22,6 +22,20 @@ export class Analysis {
   @Column('text', { nullable: true })
   aiAnalysisResult: string;
 
+  @Column('jsonb', { nullable: true })
+  highlights: {
+    id: number;
+    element: string;
+    issue: string;
+    severity: string;
+    coordinates: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    };
+  }[];
+
   @Column({ default: 'pending' })
   status: string; // 'pending', 'processing', 'completed', 'failed'
 
