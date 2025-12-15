@@ -13,11 +13,11 @@ export class AuthController {
   @Post('signup')
   @ApiOperation({ 
     summary: '회원가입',
-    description: '새로운 사용자를 등록합니다. 성공 시 JWT 토큰이 반환됩니다.',
+    description: '새로운 사용자를 등록합니다. 기본 상태는 "승인 대기(pending)"이며, 관리자의 승인 후 로그인이 가능합니다. (현재는 편의상 토큰이 반환되지만 로그인 시 차단될 수 있습니다)',
   })
   @ApiResponse({ 
     status: 201, 
-    description: '회원가입 성공',
+    description: '회원가입 성공 (승인 대기 상태)',
     schema: {
       example: {
         user: {
@@ -25,6 +25,7 @@ export class AuthController {
           email: 'user@eyeway.com',
           name: '홍길동',
           age: 25,
+          status: 'pending',
           createdAt: '2025-12-13T08:00:00.000Z',
         },
         accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -40,7 +41,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ 
     summary: '로그인',
-    description: '이메일과 비밀번호로 로그인합니다. 성공 시 JWT 토큰이 반환됩니다.',
+    description: '이메일과 비밀번호로 로그인합니다. "승인됨(approved)" 상태인 계정만 로그인이 가능합니다.',
   })
   @ApiResponse({ 
     status: 200, 
@@ -51,12 +52,13 @@ export class AuthController {
           id: '550e8400-e29b-41d4-a716-446655440000',
           email: 'user@eyeway.com',
           name: '홍길동',
+          status: 'approved',
         },
         accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
       },
     },
   })
-  @ApiResponse({ status: 401, description: '이메일 또는 비밀번호가 올바르지 않음' })
+  @ApiResponse({ status: 401, description: '이메일/비밀번호 불일치 또는 승인 대기 계정' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }

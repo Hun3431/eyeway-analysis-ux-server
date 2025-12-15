@@ -19,6 +19,9 @@ export class User {
   @Column({ nullable: true })
   age: number;
 
+  @Column({ default: 'pending' })
+  status: string; // 'pending', 'approved', 'rejected'
+
   @CreateDateColumn()
   createdAt: Date;
 
