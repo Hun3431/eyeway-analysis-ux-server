@@ -44,7 +44,7 @@ export class AiService {
 
       // Gemini 2.5 API 호출 (이미지 포함)
       const response = await this.ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-3-pro-preview',
         contents: [
           {
             role: 'user',
